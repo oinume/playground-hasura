@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: "postgres:16"
+    environment:
+      POSTGRES_USER: hasura
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: playground-hasura-base
+    ports:
+      - "5432:5432"
+  hasura-graphql-engine:
+    image: hasura/graphql-engine:v2.41.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "postgres"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://hasura:password@postgres:5432/playground-hasura-base
+      HASURA_GRAPHQL_DATABASE_URL: postgres://hasura:password@postgres:5432/playground-hasura-base
+      PG_DATABASE_URL: postgres://hasura:password@postgres:5432/playground-hasura-base
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ADMIN_SECRET: admin_secret
+      # disable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "naming_convention"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
