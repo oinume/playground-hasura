@@ -1,4 +1,5 @@
-HASURA_CLI = bin/hasura
+HASURA_CLI = ../bin/hasura
+HASURA_CLI_INSTALL_PATH = $(shell dirname ${PWD})/bin
 
 help: ## Show this help
 	@perl -nle 'BEGIN {printf "Usage:\n  make \033[33m<target>\033[0m\n\nTargets:\n"} printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 if /^([a-zA-Z_-].+):.*\s+## (.*)/' $(MAKEFILE_LIST)
@@ -18,6 +19,12 @@ stop: ## Stop Hasura server
 stop-and-clean: ## Clean hasura server
 	@docker-compose down -v
 .PHONY: stop-and-clean
+
+install-cli: ## Download hasura cli to current directory
+	mkdir -p $(HASURA_CLI_INSTALL_PATH)
+	curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | VERSION=v2.41.0 INSTALL_PATH=$(HASURA_CLI_INSTALL_PATH) bash
+	@echo "hasura command is installed in $(HASURA_CLI_INSTALL_PATH)"
+.PHONY: install-cli
 
 metadata/%: ## Run metadata command with hasura-cli
 	@$(HASURA_CLI) metadata $* --endpoint ${HASURA_ENDPOINT} --admin-secret ${HASURA_ADMIN_SECRET}
